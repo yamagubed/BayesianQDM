@@ -22,22 +22,23 @@ ContinuousWithServer <- function(id = "ContinuousWith") {
                    # browser()
                    
                    if (input$prior == 'Normal-Inverse-Chi-Squared Prior') {
-                     nu_t <- input$nu_t
-                     nu_c <- input$nu_c
-                     k_t <- input$k_t
-                     k_c <- input$k_c
-                     alpha <- input$alpha
-                     beta <- input$beta
-                     
+                     mu_0t <- input$mu_0t
+                     mu_0c <- input$mu_0c
+                     k_0t <- input$k_0t;k_0c <- input$k_0c
+                     nu_0t <- input$nu_0t; nu_0c <- input$nu_0c
+                     sigma2_0t <- input$sigma2_0t; sigma2_0c <- input$sigma2_0c
+                     # browser()
                      lDataValues$Probability_pos["TV"] <- continuous_pos.W(n_t,n_c,
                                                                            y_bar_t,y_bar_c,
                                                                            s_t,s_c,
-                                                                           nu_t,nu_c,k_t,k_c,alpha,beta, 
+                                                                           mu_0t,mu_0c,k_0t,k_0c,
+                                                                           nu_0t,nu_0c,sigma2_0t,sigma2_0c,
                                                                            TV) 
                      lDataValues$Probability_pos["MAV"] <- continuous_pos.W(n_t,n_c,
                                                                             y_bar_t,y_bar_c,
                                                                             s_t,s_c,
-                                                                            nu_t,nu_c,k_t,k_c,alpha,beta, 
+                                                                            mu_0t,mu_0c,k_0t,k_0c,
+                                                                            nu_0t,nu_0c,sigma2_0t,sigma2_0c, 
                                                                             MAV)  
                    } else if (input$prior == 'Vague Prior') {
                      lDataValues$Probability_pos["TV"] <- continuous_pos.W.vague(n_t,n_c,
@@ -145,27 +146,27 @@ ContinuousWithServer <- function(id = "ContinuousWith") {
                    gamma_2 <- input$gamma_2
                    mu_t_seq <- input$select_mu_t
                    mu_t_seq <- as.numeric(strsplit(mu_t_seq,split = ",")[[1]])
+                   sigma2_t <- input$sigma2_t;sigma2_c <- input$sigma2_c
                    # browser()
                    if (input$prior == 'Normal-Inverse-Chi-Squared Prior') {
-                     nu_t <- input$nu_t
-                     nu_c <- input$nu_c
-                     k_t <- input$k_t
-                     k_c <- input$k_c
-                     alpha <- input$alpha
-                     beta <- input$beta
-                     
-                     
-                     lDataValues$plot_OC_pos <- continuous_pos.OC.W(lower,upper,mu_c.fix,sigma2,
-                                                                    nu_t,nu_c,k_t,k_c,
-                                                                    alpha,beta,
+                     mu_0t <- input$mu_0t
+                     mu_0c <- input$mu_0c
+                     k_0t <- input$k_0t;k_0c <- input$k_0c
+                     nu_0t <- input$nu_0t; nu_0c <- input$nu_0c
+                     sigma2_0t <- input$sigma2_0t; sigma2_0c <- input$sigma2_0c
+                     # browser()
+                     lDataValues$plot_OC_pos <- continuous_pos.OC.W(lower,upper,mu_c.fix,sigma2_t,sigma2_c,
+                                                                    mu_0t,mu_0c,k_0t,k_0c,
+                                                                    nu_0t,nu_0c,sigma2_0t,sigma2_0c,
                                                                     n_t,n_c,
                                                                     TV, MAV, gamma_1, gamma_2,
                                                                     N = input$N,
                                                                     mu_t.length = 10) 
                      res <- sapply(1:length(mu_t_seq), function(i) {
-                       continuous_pos.GO.sce.W(mu_t_seq[i], mu_c.fix, sigma2,
-                                               nu_t,nu_c,k_t,k_c,n_t,n_c,
-                                               alpha, beta, 
+                       continuous_pos.GO.sce.W(mu_t_seq[i], mu_c.fix, sigma2_t,sigma2_c,
+                                               mu_0t,mu_0c,k_0t,k_0c,
+                                               nu_0t,nu_0c,sigma2_0t,sigma2_0c,
+                                               n_t,n_c,
                                                TV, MAV, gamma_1, gamma_2,
                                                N = input$N)
                      })

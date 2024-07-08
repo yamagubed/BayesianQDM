@@ -34,7 +34,8 @@ ContinuousWithUI <- function(id = "ContinuousWith") {
                           textInput(ns("select_mu_t"), label = withMathJax("Selected Values for \\( \\mu_{t} \\)"), value = "1,2,4"))
                    
           ),
-          fluidRow(column(3,numericInput(ns("sigma2"), label = withMathJax("\\(\\sigma^2 \\)"),value = 1)),
+          fluidRow(column(3,numericInput(ns("sigma2_t"), label = withMathJax("\\(\\sigma_t^2 \\)"),value = 1)),
+                   column(3,numericInput(ns("sigma2_c"), label = withMathJax("\\(\\sigma_c^2 \\)"),value = 1)),
                    column(3,numericInput(ns("lower"), label = withMathJax("lower bound of \\( \\mu_t\\)"),value = -1)),
                    column(3,numericInput(ns("upper"), label = withMathJax("upper bound of \\(\\mu_t \\)"),value = 3)))
         ),
@@ -52,13 +53,13 @@ ContinuousWithUI <- function(id = "ContinuousWith") {
               column(3, numericInput(ns("mu_0t"), label = withMathJax("\\(\\mu_{0t}\\)"), value = 5)),
               column(3, numericInput(ns("k_0t"), label = withMathJax("\\(k_{0t}\\)"), value = 5)),
               column(3, numericInput(ns("nu_0t"), label = withMathJax("\\(\\nu_{0t}\\)"), value = 5)),
-              column(3, numericInput(ns("sigma_0t"), label = withMathJax("\\(\\sigma_{0t}\\)"), value = 5)),
+              column(3, numericInput(ns("sigma2_0t"), label = withMathJax("\\(\\sigma_{0t}\\)"), value = 5)),
             ),
             fluidRow(
               column(3, numericInput(ns("mu_0c"), label = withMathJax("\\(\\mu_{0c}\\)"), value = 5)),
               column(3, numericInput(ns("k_0c"), label = withMathJax("\\(k_{0c}\\)"), value = 5)),
               column(3, numericInput(ns("nu_0c"), label = withMathJax("\\(\\nu_{0c}\\)"), value = 5)),
-              column(3, numericInput(ns("sigma_0c"), label = withMathJax("\\(\\sigma_{0c}\\)"), value = 5)),
+              column(3, numericInput(ns("sigma2_0c"), label = withMathJax("\\(\\sigma_{0c}\\)"), value = 5)),
             ),
           ),
           ns=NS(id)

@@ -16,31 +16,60 @@ continuous_pos.W <- function(n_t,n_c, y_bar_t,y_bar_c,s_t,s_c,
                              mu_t,mu_c,
                              k_t,k_c,
                              nu_t,nu_c,
-                             sigma2_t,sigma2_c,theta) {
-  #NIG prior
-  center <- ((k_t*nu_t+n_t*y_bar_t)/(k_t+n_t)) - ((k_c*nu_c+n_c*y_bar_c)/(k_c+n_c))
-  A <- c(1,-1)
+                             sigma2_t,sigma2_c,theta,
+                             N = 1000) { #Number of simulations to be used to approximate the CDF
+  # #NIG prior
+  # center <- ((k_t*nu_t+n_t*y_bar_t)/(k_t+n_t)) - ((k_c*nu_c+n_c*y_bar_c)/(k_c+n_c))
+  # A <- c(1,-1)
+  # 
+  # beta_s <- beta+0.5*( (n_t - 1)*s_t^2 + (n_c - 1)*s_c^2 ) + 
+  #   (k_t*n_t*((y_bar_t - nu_t)**2)/(2*(k_t+n_t))) + (k_c*n_c*((y_bar_c - nu_c)**2)/(2*(k_c+n_c)))
+  # alpha_s <- alpha + n_t/2 + n_c/2
+  # scale <- (beta_s/alpha_s)*(t(A) %*% diag(1/c(k_t+n_t,k_c+n_c)) %*% A)
+  # 
+  # cubintegrate(dt,lower = (theta - center)/sqrt(scale),upper = Inf, 
+  #              df = 2*alpha+n_t+n_c)$integral
   
-  beta_s <- beta+0.5*( (n_t - 1)*s_t^2 + (n_c - 1)*s_c^2 ) + 
-    (k_t*n_t*((y_bar_t - nu_t)**2)/(2*(k_t+n_t))) + (k_c*n_c*((y_bar_c - nu_c)**2)/(2*(k_c+n_c)))
-  alpha_s <- alpha + n_t/2 + n_c/2
-  scale <- (beta_s/alpha_s)*(t(A) %*% diag(1/c(k_t+n_t,k_c+n_c)) %*% A)
+  k_nt <- k_t + n_t;k_nc <- k_c + n_c
   
-  cubintegrate(dt,lower = (theta - center)/sqrt(scale),upper = Inf, 
-               df = 2*alpha+n_t+n_c)$integral
+  nu_nt <- nu_t + n_t; nu_nc <- nu_c + n_c
+  
+  center_t <- (k_t * mu_t + n_t * y_bar_t)/k_nt
+  center_c <- (k_c * mu_c + n_c * y_bar_c)/k_nc
+  sigma2_nt <- (nu_t * sigma2_t + (n_t - 1)*s_t^2 + n_t * k_t *(mu_t - y_bar_t)^2/(k_t + n_t))/nu_nt
+  sigma2_nc <- (nu_c * sigma2_c + (n_c - 1)*s_c^2 + n_c * k_c *(mu_c - y_bar_c)^2/(k_c + n_c))/nu_nc
+  scale_t <- sigma2_nt/k_nt; scale_c <- sigma2_nc/k_nc
+  df_t <- nu_nt; df_c <- nu_nc
+  
+  1 - d_t.cdf(x = theta, df1 = df_t, df2 = df_c, center1 = center_t, center2 = center_c,
+              scale1 = scale_t, scale2 = scale_c, N = N)
   
 }
 continuous_pos.O <- function(n_t, y_bar_t, s_t,
-                             nu_t,k_t,r,alpha,beta, theta) {
+                             nu_t,k_t,mu_0c,r,alpha,beta, theta) {
   
-  center <- ((k_t*nu_t+n_t*y_bar_t)/(k_t+n_t))
-  beta_s <- beta+0.5*( (n_t - 1)*s_t^2 ) +
-    (k_t*n_t*((y_bar_t - nu_t)**2)/(2*(k_t+n_t)))
-  alpha_s <- alpha + n_t/2
-  scale <- ((r+1)*beta_s)/(alpha_s*(k_t+n_t))
+  # center <- ((k_t*nu_t+n_t*y_bar_t)/(k_t+n_t))
+  # beta_s <- beta+0.5*( (n_t - 1)*s_t^2 ) +
+  #   (k_t*n_t*((y_bar_t - nu_t)**2)/(2*(k_t+n_t)))
+  # alpha_s <- alpha + n_t/2
+  # scale <- ((r+1)*beta_s)/(alpha_s*(k_t+n_t))
+  # 
+  # cubintegrate(dt,lower = (theta - center)/sqrt(scale),upper = Inf,
+  #              df = 2*alpha+n_t)$integral
+  
+  k_nt <- k_t + n_t
+  
+  nu_nt <- nu_t + n_t
+  
+  center_t <- (k_t * mu_t + n_t * y_bar_t)/k_nt
+  center <- center_t - mu_0c
+  sigma2_nt <- (nu_t * sigma2_t + (n_t - 1)*s_t^2 + n_t * k_t *(mu_t - y_bar_t)^2/(k_t + n_t))/nu_nt
+  scale_t <- sigam2_nt/k_nt
+  scale <- (r + 1)*scale_t
+  df_t <- nu_nt
   
   cubintegrate(dt,lower = (theta - center)/sqrt(scale),upper = Inf,
-               df = 2*alpha+n_t)$integral
+               df = df_t)$integral
 }
 
 continuous_pos.W.vague <- function(n_t,n_c,
@@ -68,14 +97,15 @@ continuous_pos.O.vague <- function(n_t,
 }
 
 
-continuous_pos.GO.sce.W <- function(mu_t, mu_c, sigma2,
-                                    nu_t,nu_c,k_t,k_c,n_t,n_c,
-                                    alpha, beta, 
+continuous_pos.GO.sce.W <- function(mu_t, mu_c, sigma2_t,sigma2_c,
+                                    mu_0t,mu_0c,k_0t,k_0c,
+                                    nu_0t,nu_0c,sigma2_0t,sigma2_0c,
+                                    n_t,n_c,
                                     TV, MAV, gamma_1, gamma_2,
                                     N = 1000) {#number of repitation
   #scenarior accessment for Go/No-Go decision
-  y_t <- matrix(rnorm(n_t*N, mean = mu_t, sd = sqrt(sigma2/k_t)), nrow = N, ncol = n_t)
-  y_c <- matrix(rnorm(n_c*N, mean = mu_c, sd = sqrt(sigma2/k_c)), nrow = N, ncol = n_c)
+  y_t <- matrix(rnorm(n_t*N, mean = mu_t, sd = sqrt(sigma2_t)), nrow = N, ncol = n_t)
+  y_c <- matrix(rnorm(n_c*N, mean = mu_c, sd = sqrt(sigma2_c)), nrow = N, ncol = n_c)
   
   
   prob.go.sce <- mean(
@@ -84,14 +114,18 @@ continuous_pos.GO.sce.W <- function(mu_t, mu_c, sigma2,
              continuous_pos.W(n_t,n_c,
                               mean(y_t[i,]), mean(y_c[i,]),
                               sd(y_t[i,]), sd(y_c[i,]),
-                              nu_t,nu_c,k_t,k_c,alpha,beta, TV) 
+                              mu_0t,mu_0c,k_0t,k_0c,
+                              nu_0t,nu_0c,sigma2_0t,sigma2_0c,
+                              TV) 
            }) >= gamma_1)
   prob.nogo.sce <- mean(
     sapply(1:N, function(i){ 
       continuous_pos.W(n_t,n_c,
                        mean(y_t[i,]), mean(y_c[i,]),
                        sd(y_t[i,]), sd(y_c[i,]),
-                       nu_t,nu_c,k_t,k_c,alpha,beta, MAV) 
+                       mu_0t,mu_0c,k_0t,k_0c,
+                       nu_0t,nu_0c,sigma2_0t,sigma2_0c,
+                       MAV) 
     }) <= gamma_2)
   
   return(list(prob.go.sce = prob.go.sce, prob.nogo.sce = prob.nogo.sce,prob.grey.sce = 1 - prob.go.sce - prob.nogo.sce))
@@ -178,18 +212,19 @@ continuous_pos.GO.sce.O.vague <- function(mu_t, sigma2,
   return(list(prob.go.sce = prob.go.sce, prob.nogo.sce = prob.nogo.sce,prob.grey.sce = 1 - prob.go.sce - prob.nogo.sce))
 }
 
-continuous_pos.OC.W <- function(lower,upper,mu_c.fix,sigma2,
-                            nu_t,nu_c,k_t,k_c,
-                            alpha, beta, 
-                            n_t,n_c,
-                            TV, MAV, gamma_1, gamma_2,
-                            N = 10,
-                            mu_t.length = 10) {
+continuous_pos.OC.W <- function(lower,upper,mu_c.fix,sigma2_t,sigma2_c,
+                                mu_0t,mu_0c,k_0t,k_0c,
+                                nu_0t,nu_0c,sigma2_0t,sigma2_0c,
+                                n_t,n_c,
+                                TV, MAV, gamma_1, gamma_2,
+                                N = 10,
+                                mu_t.length = 10) {
   mu_t <- seq(lower,upper,length.out = mu_t.length)
   res <- sapply(1:mu_t.length, function(i) {
-    continuous_pos.GO.sce.W(mu_t[i], mu_c.fix, sigma2,
-                            nu_t,nu_c,k_t,k_c,n_t,n_c,
-                            alpha, beta, 
+    continuous_pos.GO.sce.W(mu_t[i], mu_c.fix, sigma2_t,sigma2_c,
+                            mu_0t,mu_0c,k_0t,k_0c,
+                            nu_0t,nu_0c,sigma2_0t,sigma2_0c,
+                            n_t,n_c,
                             TV, MAV, gamma_1, gamma_2,
                             N = N)
   })
