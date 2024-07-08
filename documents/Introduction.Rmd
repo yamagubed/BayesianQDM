@@ -1,0 +1,12 @@
+Evidence-based decision-making is essential across all phases of clinical development.
+Particularly, phase II proof-of-concept (PoC) studies play a significant role as a gatekeeper to increase the efficiency of asset selection for late-stage development by guiding decisions of stopping the development of ineffective assets as early as possible and of accelerating the development of promising assets. 
+Quantitative decision-making (QDM) assessment for the phase II PoC study triggers the cross functional discussion of go/no-go decision criteria, which is indeed a key component when developing the entire clinical development plan.
+
+Our focus is the study design we often see in cell \& gene therapy area where the cohorts to be utilized for the QDM assessment are typically small and insufficiently informative for clinical endpoints when used alone.
+As such, results from the QDM assessment are difficult to interpret with very high probability of inconclusive decision. 
+In addition, certain approximations that are appropriate for PoC studies with moderate to large sizes may be questionable in small studies.
+
+Borrowing information from external data sources can be a potential solution to make the QDM more viable. For example, we may incorporate the information from the dose-escalation cohorts to augment the phase II cohort data. Besides, historical information may serve as external controls in the QDM, if available. 
+
+We implement the Bayesian QDM methods in this App.
+Detailed methodology can be found in the document accompanied.
