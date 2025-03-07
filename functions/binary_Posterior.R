@@ -17,22 +17,28 @@ d_beta.density <- function(pi, alpha_1, alpha_2, beta_1, beta_2) {
   }
 }
 binary_pos.W <- function(n_t,n_c,
-                       y_t,y_c,
-                       alpha_t, alpha_c,
-                       beta_t, beta_c,
-                       theta) {
+                         y_t,y_c,
+                         alpha_t, alpha_c,
+                         beta_t, beta_c,
+                         theta) {
   res <- tryCatch({
-    cubintegrate(d_beta.density,lower = theta,upper = 1, 
+    temp <- cubintegrate(d_beta.density,lower = theta,upper = 1, 
                  alpha_1 = alpha_t+y_t, alpha_2 = alpha_c + y_c,
                  beta_1 = beta_t + n_t - y_t, beta_2 = beta_c + n_c - y_c)$integral
+    if (temp > 1) {
+      warning("The integral is ",temp," which is larger than 1.")
+    }
+    temp
   },
   error = function(e) {
-    message(e)
-    Inf
+    message(e,
+            "y_t = ",y_t, ";y_c = ", y_c, "\n")
+    1#TBD: use MC approach
   },
   warning = function(w) {
-    message(w)
-    Inf
+    message(w,
+            "y_t = ",y_t, ";y_c = ", y_c, "\n")
+    1
   })
   return(res)
 
@@ -50,9 +56,9 @@ binary_pos.O <- function(n_t,
 }
 
 binary_pos.GO.sce.W <- function(pi_t, pi_c, 
-                              alpha_t, alpha_c,
-                              beta_t, beta_c,
-                              n_t, n_c, TV, MAV, gamma_1, gamma_2) {
+                                alpha_t, alpha_c,
+                                beta_t, beta_c,
+                                n_t, n_c, TV, MAV, gamma_1, gamma_2) {
   #scenarior accessment for Go/No-Go decision
   prob.go.sce <- 0
   prob.nogo.sce <- 0

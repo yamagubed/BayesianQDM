@@ -40,8 +40,8 @@ BinaryWithoutServer <- function(id = "BinaryWithout") {
                    z <- input$z
                    alpha_t <- input$alpha_t
                    beta_t <- input$beta_t
-                   TV <- input$theta_0
-                   MAV <- input$theta_1
+                   TV <- input$theta_null
+                   MAV <- input$theta_null
                    m_t <- input$m_t_pred
                    lDataValues$Probability_pred["TV"] <- binary_pred.O(m_t,
                                                                        alpha_t, beta_t,z,
@@ -102,8 +102,8 @@ BinaryWithoutServer <- function(id = "BinaryWithout") {
       n_t <- input$n_t
       alpha_t <- input$alpha_t
       beta_t <- input$beta_t
-      TV <- input$theta_0
-      MAV <- input$theta_1
+      TV <- input$theta_null
+      MAV <- input$theta_null
       gamma_1 <- input$gamma_1
       gamma_2 <- input$gamma_2
       z <- input$z
@@ -125,13 +125,44 @@ BinaryWithoutServer <- function(id = "BinaryWithout") {
       res$pi_t <- pi_t_seq
       lDataValues$table_OC_pred <- res[,c(4,1,2,3)]
       
+      #---The Second OC for Predictive Probability Only
+      theta_null <- input$theta_null
+      y_t <- seq(0,n_t,length.out = 10)
+     
+      x_01 <- uniroot(function(y) {
+        binary_pred.O(m_t,
+                      alpha_t, beta_t,z,
+                      y,
+                      n_t,
+                      theta = theta_null, N = 10000) - gamma_1
+      } , c(0, n_t), tol = 0.0001)$root
+      
+      x_02 <- uniroot(function(y) {
+        binary_pred.O(m_t,
+                      alpha_t, beta_t,z,
+                      y,
+                      n_t,
+                      theta = theta_null, N = 10000) - gamma_2
+      } , c(0, n_t), tol = 0.0001)$root
+      
+      y_t <- c(y_t,x_01,x_02)
+      pred.prob <- sapply(y_t, function(y) {
+        binary_pred.O(m_t,
+                      alpha_t, beta_t,z,
+                      y,n_t,
+                      theta = theta_null, N = 10000)
+      })
+      pred.prob <- cbind(y_t,pred.prob)
+      lDataValues$plot_OC2_pred <- graph_OC2(pred.prob,"binary",FALSE,gamma_1,gamma_2,x_01,x_02)
       shinyBS::updateButton(session,
                             inputId = ns("Generate_pred"), label = "Generate", size = "default", disabled = FALSE)
     })
     output$OC_pred <- renderPlot({
       lDataValues$plot_OC_pred
     })
-    
+    output$OC2_pred <- renderPlot({
+      lDataValues$plot_OC2_pred 
+    })
     output$OC_pred_table <- renderTable({
       lDataValues$table_OC_pred
     })

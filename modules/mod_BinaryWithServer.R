@@ -50,8 +50,8 @@ BinaryWithServer <- function(id = "BinaryWith") {
                    beta_t <- input$beta_t
                    alpha_c <- input$alpha_c
                    beta_c <- input$beta_c
-                   TV <- input$theta_0
-                   MAV <- input$theta_1
+                   TV <- input$theta_null
+                   MAV <- input$theta_null
                    m_t <- input$m_t_pred
                    m_c <- input$m_c_pred
                    lDataValues$Probability_pred <- c("TV" = binary_pred.W(
@@ -111,10 +111,10 @@ BinaryWithServer <- function(id = "BinaryWith") {
                    res <- as.data.frame(apply(res,1,unlist))
                    res$pi_t <- pi_t_seq
                    lDataValues$table_OC_pos <- res[,c(4,1,2,3)]
-                   colnames(lDataValues$table_OC_pos) <- c("\\(\\pi_t\\)",
-                                                          "\\(P(Go|\\pi_t,\\pi_c)\\)",
-                                                          "\\(P(NoGo|\\pi_t,\\pi_c)\\)",
-                                                          "\\(P(Grey|\\pi_t,\\pi_c)\\)")
+                   # colnames(lDataValues$table_OC_pos) <- c("\\(\\pi_t\\)",
+                   #                                        "\\(P(Go|\\pi_t,\\pi_c)\\)",
+                   #                                        "\\(P(NoGo|\\pi_t,\\pi_c)\\)",
+                   #                                        "\\(P(Grey|\\pi_t,\\pi_c)\\)")
                    shinyBS::updateButton(session,
                                          inputId = ns("Generate_pos"), label = "Generate", size = "default", disabled = FALSE)
                  })
@@ -161,13 +161,36 @@ BinaryWithServer <- function(id = "BinaryWith") {
                    res <- as.data.frame(apply(res,1,unlist))
                    res$pi_t <- pi_t_seq
                    lDataValues$table_OC_pred <- res[,c(4,1,2,3)]
-                   colnames(lDataValues$table_OC_pred) <- c("\\(\\pi_t\\)",
-                                                           "\\(P(Go|\\pi_t,\\pi_c)\\)",
-                                                           "\\(P(NoGo|\\pi_t,\\pi_c)\\)",
-                                                           "\\(P(Grey|\\pi_t,\\pi_c)\\)")
+                   # colnames(lDataValues$table_OC_pred) <- c("\\(\\pi_t\\)",
+                   #                                         "\\(P(Go|\\pi_t,\\pi_c)\\)",
+                   #                                         "\\(P(NoGo|\\pi_t,\\pi_c)\\)",
+                   #                                         "\\(P(Grey|\\pi_t,\\pi_c)\\)")
                    #---The Second OC for Predictive Probability Only
                    y_c <- input$y_c_h; theta_null <- input$theta_null
                    y_t <- seq(0,n_t,length.out = 10)
+                   
+                   # browser()
+                   x <- uniroot(function(y) {
+                     binary_pred.W(m_t,m_c,
+                                   alpha_t, beta_t,
+                                   alpha_c,beta_c,
+                                   y,y_c,
+                                   n_t,n_c,
+                                   theta = theta_null, N = 10000) - gamma_1
+                   } , c(0, n_t), tol = 0.0001)$root
+                   x_01 <- x-y_c
+
+                   x <- uniroot(function(y) {
+                     binary_pred.W(m_t,m_c,
+                                   alpha_t, beta_t,
+                                   alpha_c,beta_c,
+                                   y,y_c,
+                                   n_t,n_c,
+                                   theta = theta_null, N = 10000) - gamma_2
+                   } , c(0, n_t), tol = 0.0001)$root
+                   x_02 <- x-y_c
+                   
+                   y_t <- c(y_t,x_01+y_c,x_02+y_c)
                    obs_diff <- y_t - y_c;
                    pred.prob <- sapply(y_t, function(y) {
                      binary_pred.W(m_t,m_c,
@@ -177,37 +200,19 @@ BinaryWithServer <- function(id = "BinaryWith") {
                                    n_t,n_c,
                                    theta = theta_null, N = 10000)
                    })
-                   gamma_1 <- 0.3; gamma_2 <- 0.15
                    pred.prob <- cbind(y_t,pred.prob,obs_diff)
                    
-                   segment <- function(gamma) {
-                     x <- uniroot(function(y) {
-                       binary_pred.W(m_t,m_c,
-                                     alpha_t, beta_t,
-                                     alpha_c,beta_c,
-                                     y,y_c,
-                                     n_t,n_c,
-                                     theta = theta_null, N = 10000) - gamma
-                     } , c(0, n_t), tol = 0.0001)$root
-                     x_0 <- x-y_c
-                     list(
-                       geom_segment(aes(x = x_0, xend = x_0, y = -Inf, yend = gamma),
-                                    linetype = 2),
-                       geom_segment(aes(x = -Inf, xend = x_0, y = gamma, yend = gamma),
-                                    linetype = 2)
-                       # geom_polygon(aes(x = c(x_0,x_0,-Inf,x_0),
-                       #                  y = c(-Inf,gamma,gamma,gamma)))
-                     )
-                   }
-                   lDataValues$plot_OC2_pred <- ggplot(data = pred.prob, aes(x = obs_diff)) + 
-                     geom_line(aes(y = pred.prob),linewidth = 0.7)+
-                     geom_point(aes(y = pred.prob),shape = 17,size = 2) +
-                     segment(gamma_1) +
-                     segment(gamma_2) +
-                     theme_bw() +
-                     xlab(latex2exp::TeX("Observed $y_t - y_c$")) +
-                     ylab(latex2exp::TeX("Predictive Probability")) +
-                     ggtitle("Decision Criteria based on Predictive Probability of Phase 3 Success")
+                   # lDataValues$plot_OC2_pred <- ggplot(data = pred.prob, aes(x = obs_diff)) + 
+                   #   geom_line(aes(y = pred.prob),linewidth = 0.7)+
+                   #   geom_point(aes(y = pred.prob),shape = 17,size = 2) +
+                   #   segment(gamma_1) +
+                   #   segment(gamma_2) +
+                   #   theme_bw() +
+                   #   xlab(latex2exp::TeX("Observed $y_t - y_c$")) +
+                   #   ylab(latex2exp::TeX("Predictive Probability")) +
+                   #   ggtitle("Decision Criteria based on Predictive Probability of Phase 3 Success")
+                   
+                   lDataValues$plot_OC2_pred <- graph_OC2(pred.prob,"binary",TRUE,gamma_1,gamma_2,x_01,x_02)
                    
                    
                    shinyBS::updateButton(session,

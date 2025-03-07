@@ -71,13 +71,19 @@ BinaryWithoutUI <- function(id = "BinaryWithout") {
                    box(width = 12,
                        title = "Operating Characteristic",
                        wellPanel(
+                         fluidRow(column(12,
+                                         HTML("<b>Sample Sizes of Pivotal Study: </b>"))),
                          fluidRow(column(3,
                                          numericInput(ns("m_t_pred"), label = withMathJax("\\(m_t\\)"), value = 12)),
                          ),
+                         fluidRow(column(12,
+                                         HTML("<b>Smallest Treatment Effect that Indicates a Successful Pivotal Study:</b>"))),
+                         fluidRow(column(3, numericInput(ns("theta_null"), label = withMathJax("$$\\theta_{null}$$"),
+                                                         value = 0.5))),
                          fluidRow(
                            column(9,sliderInput(ns("N"), "Number of Simulations to Calculate Density of Two Random variable Difference",
-                                                min = 100, max = 10000,
-                                                value = 1000, step = 100)),
+                                                min = 1000, max = 10000,
+                                                value = 1000, step = 1000)),
                            column(3, 
                                   div(style = "margin-top:25px",
                                       bsButton(ns("Generate_pred"), strong("Generate"), icon("stethoscope")))))
@@ -86,7 +92,9 @@ BinaryWithoutUI <- function(id = "BinaryWithout") {
                          fluidRow(column(12,
                                          plotOutput(ns("OC_pred")))),
                          fluidRow(column(12,
-                                         tableOutput(ns("OC_pred_table"))))
+                                         tableOutput(ns("OC_pred_table")))),
+                         fluidRow(column(12,
+                                         plotOutput(ns("OC2_pred"))))
                        )),
                    box(width = 12,
                        title = "Predictive Probability Calculation",

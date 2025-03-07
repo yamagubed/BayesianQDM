@@ -5,12 +5,16 @@ library(shinydashboardPlus)
 library(shinybusy)
 library(shinyWidgets)
 library(shinyBS)
+library(rstan)
 
 source("functions/binary_Posterior.R")
 source("functions/binary_Predictive.R")
+source("functions/binary_External.R")
 source("functions/continuous_Posterior.R")
 source("functions/continuous_Predictive.R")
+source("functions/continuous_External.R")
 source("functions/graph_OC1.R")
+source("functions/graph_OC2.R")
 
 source("modules/mod_HomeServer.R")
 source("modules/mod_HomeUI.R")
@@ -24,6 +28,8 @@ source("modules/mod_ContinuousWithServer.R")
 source("modules/mod_ContinuousWithUI.R")
 source("modules/mod_ContinuousWithoutServer.R")
 source("modules/mod_ContinuousWithoutUI.R")
+source("modules/mod_ContinuousExtServer.R")
+source("modules/mod_ContinuousExtUI.R")
 
 ### UI ####
 app_ui <- function() {
@@ -52,7 +58,9 @@ app_ui <- function() {
       coverMenuItem(
         menuItem("Continuous Endpoint",tabName = "ContinuousEndpoint", icon = icon("right-to-bracket"), selected = T,
                  menuSubItem("Case with Controlled PoC",tabName = "ContinuousWith"),
-                 menuSubItem("Case without Controlled PoC",tabName = "ContinuousWithout")), "BinaryEndpoint")
+                 menuSubItem("Case without Controlled PoC",tabName = "ContinuousWithout"),
+                 menuSubItem("Case with External Control",tabName = "ContinuousExt")), 
+        "ContinuousEndpoint")
   ))
   
   body <- shinydashboard::dashboardBody(
@@ -62,7 +70,8 @@ app_ui <- function() {
       tabItem(tabName = "BinaryWithout", BinaryWithoutUI()),
       tabItem(tabName = "ContinuousWith", ContinuousWithUI()),
       tabItem(tabName = "ContinuousWithout", ContinuousWithoutUI()),
-      tabItem(tabName = "BinaryExt", BinaryExtUI())
+      tabItem(tabName = "BinaryExt", BinaryExtUI()),
+      tabItem(tabName = "ContinuousExt", ContinuousExtUI())
     )
   )
   
@@ -77,6 +86,7 @@ app_server <- function(input, output, session) {
   ContinuousWithServer()
   ContinuousWithoutServer()
   BinaryExtServer()
+  ContinuousExtServer()
 }
 
 shinyApp(ui = app_ui,server = app_server)

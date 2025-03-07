@@ -1,0 +1,27 @@
+**Assumptions**
+
+We assume the hypothetical control with a center and a scale parameter controlled by $r$.
+
+**Go/NoGo Decision Making**
+
+Using posterior probability, then a Go decision will be made, if 
+$$P(\theta>\theta_{TV}|y_t) \geq \gamma_1,$$
+where $\theta_{TV}$ is a target value representing the smallest treatment effect that would be an unequivocal efficacy signal to pursue development.
+And a No Go decision will be made, if
+$$P(\theta>\theta_{MAV}|y_t) \leq \gamma_2,$$
+where $\theta_{MAV}$ is a minimum acceptable value representing the smallest treatment effect that would be considered clinically meaningful.
+
+Using predictive probability, a Go decision will be made, if
+$$P(\hat \theta>\theta_{null}|y_t) \geq \gamma_1,$$
+where $\hat\theta$ is the treatment effect of pivotal study and $\theta_{null}$ is a value representing the smallest treatment effect that indicates a successful pivotal study.
+And a No Go decision will be made, if
+$$P(\hat \theta>\theta_{null}|y_t) \leq \gamma_2.$$
+Calculating the posterior predictive probability involves the distribution of two independent random variables that follow beta-binomial distribution.
+We use Monte Carlo simulation to approximate this probability.
+The user should specify the number of simulations to run.
+
+**Operating Characteristic**
+
+Probability of making Go/NoGo decision will be calculated with assumed response rate.
+A graph summary of probabilities will be provided, together with a table summary of probabilities given certain assumed response rates.
+The user can specify those assumed response rates in "Selected values for $\pi_t$", using comma to separate values.

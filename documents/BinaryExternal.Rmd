@@ -1,0 +1,16 @@
+**Assumptions**
+
+Suppose that random variables of the numbers of response observed in treatment and control group for PoC study are denoted by $y_t$ and $y_c$ where we assume $y_i \sim Bin(n_i,\pi_i)$ and $\pi_i \sim Beta(\alpha_i,\beta_i)$ for $i \in \{c,t\}$.
+
+Let $x_t$ and $x_c$ be random variables of the number of response observed in treatment and control group for pivotal study.
+Assume $x_i \sim Bin(m_i, \pi_i)$ for $i \in \{c,t\}$ where $m_i$ is the corresponding sample size in pivotal study.
+
+We use $y_{ei}$ to denote the number of responses in external (historical) data, where $i \in \{c,t\}$.
+The posterior distribution constructed with the power prior can be written as
+$$
+    q(\pi_i|y_i,y_{ei}; a_{0i}) \propto L(\pi_i|y_i) f(\pi_i) L(\pi_{i} | y_{ei})^{a_{0i}}, i \in \{c,t\}.
+$$
+
+**Go/NoGo Decision Making**
+
+Same as case with/without control.

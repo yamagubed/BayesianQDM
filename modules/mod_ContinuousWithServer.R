@@ -69,28 +69,29 @@ ContinuousWithServer <- function(id = "ContinuousWith") {
                    s_c <- input$s_c_pred
                    m_t <- input$m_t
                    m_c <- input$m_c
-                   TV <- input$theta_0
-                   MAV <- input$theta_1
+                   TV <- input$theta_null
+                   MAV <- input$theta_null
                    # browser()
                    if (input$prior == 'Normal-Inverse-Chi-Squared Prior') {
-                     nu_t <- input$nu_t
-                     nu_c <- input$nu_c
-                     k_t <- input$k_t
-                     k_c <- input$k_c
-                     alpha <- input$alpha
-                     beta <- input$beta
+                     mu_0t <- input$mu_0t
+                     mu_0c <- input$mu_0c
+                     k_0t <- input$k_0t;k_0c <- input$k_0c
+                     nu_0t <- input$nu_0t; nu_0c <- input$nu_0c
+                     sigma2_0t <- input$sigma2_0t; sigma2_0c <- input$sigma2_0c
                      
-                     lDataValues$Probability_pred["TV"] <- continuous_pred.W(n_t,n_c,
-                                                                             y_bar_t,y_bar_c,
-                                                                             s_t,s_c,
-                                                                             m_t,m_c,
-                                                                             nu_t,nu_c,k_t,k_c,alpha,beta, 
-                                                                             TV) 
-                     lDataValues$Probability_pred["MAV"] <- continuous_pred.W(n_t,n_c,
-                                                                              y_bar_t,y_bar_c,
-                                                                              s_t,s_c,
-                                                                              m_t,m_c,
-                                                                              nu_t,nu_c,k_t,k_c,alpha,beta, 
+                     lDataValues$Probability_pred["TV"] <- continuous_pred.W(n_t,n_c, m_t,m_c,
+                                                                             y_bar_t,y_bar_c,s_t,s_c,
+                                                                             mu_0t,mu_0c,
+                                                                             k_0t,k_0c,
+                                                                             nu_0t,nu_0c,
+                                                                             sigma2_0t,sigma2_0c,
+                                                                             TV)
+                     lDataValues$Probability_pred["MAV"] <- continuous_pred.W(n_t,n_c, m_t,m_c,
+                                                                              y_bar_t,y_bar_c,s_t,s_c,
+                                                                              mu_0t,mu_0c,
+                                                                              k_0t,k_0c,
+                                                                              nu_0t,nu_0c,
+                                                                              sigma2_0t,sigma2_0c,
                                                                               MAV)  
                    } else if (input$prior == 'Vague Prior') {
                      lDataValues$Probability_pred["TV"] <- continuous_pred.W.vague(n_t,n_c,
@@ -172,13 +173,13 @@ ContinuousWithServer <- function(id = "ContinuousWith") {
                      })
                      
                    } else if (input$prior == 'Vague Prior') {
-                     lDataValues$plot_OC_pos <- continuous_pos.OC.W.vague(lower,upper,mu_c.fix,sigma2,
+                     lDataValues$plot_OC_pos <- continuous_pos.OC.W.vague(lower,upper,mu_c.fix,sigma2_t,sigma2_c,
                                                                           n_t,n_c,
                                                                           TV, MAV, gamma_1, gamma_2,
                                                                           N = input$N,
                                                                           mu_t.length = 10) 
                      res <- sapply(1:length(mu_t_seq), function(i) {
-                       continuous_pos.GO.sce.W.vague(mu_t_seq[i], mu_c.fix, sigma2,
+                       continuous_pos.GO.sce.W.vague(mu_t_seq[i], mu_c.fix, sigma2_t,sigma2_c,
                                                      n_t,n_c,
                                                      TV, MAV, gamma_1, gamma_2,
                                                      N = input$N)
@@ -203,55 +204,138 @@ ContinuousWithServer <- function(id = "ContinuousWith") {
       lower <- input$lower
       upper <- input$upper
       mu_c.fix <- input$mu_c.fix
-      sigma2 <- input$sigma2
+      sigma2_t <- input$sigma2_t
+      sigma2_c <- input$sigma2_c
       m_t <- input$m_t
       m_c <- input$m_c
       n_t <- input$n_t
       n_c <- input$n_c
-      TV <- input$theta_0
-      MAV <- input$theta_1
+      TV <- input$theta_null
+      MAV <- input$theta_null
+      theta_null <- input$theta_null
       gamma_1 <- input$gamma_1
       gamma_2 <- input$gamma_2
       mu_t_seq <- input$select_mu_t
       mu_t_seq <- as.numeric(strsplit(mu_t_seq,split = ",")[[1]])
+      y_t_h_lower <- input$y_t_h_lower
+      y_t_h_upper <- input$y_t_h_upper
+      y_c_h <- input$y_c_h
+      s_t_h <- input$s_t_h
+      s_c_h <- input$s_c_h
       if (input$prior == 'Normal-Inverse-Chi-Squared Prior') {
-        nu_t <- input$nu_t
-        nu_c <- input$nu_c
-        k_t <- input$k_t
-        k_c <- input$k_c
-        alpha <- input$alpha
-        beta <- input$beta
-        lDataValues$plot_OC_pred <- continuous_pred.OC.W(lower,upper,mu_c.fix,sigma2,
-                                                         nu_t,nu_c,k_t,k_c,
-                                                         alpha,beta,
-                                                         n_t,n_c,
-                                                         m_t,m_c,
+        mu_0t <- input$mu_0t
+        mu_0c <- input$mu_0c
+        k_0t <- input$k_0t;k_0c <- input$k_0c
+        nu_0t <- input$nu_0t; nu_0c <- input$nu_0c
+        sigma2_0t <- input$sigma2_0t; sigma2_0c <- input$sigma2_0c
+        lDataValues$plot_OC_pred <- continuous_pred.OC.W(lower,upper,mu_c.fix,sigma2_t,sigma2_c,
+                                                         n_t,n_c, m_t,m_c,
+                                                         mu_0t,mu_0c,
+                                                         k_0t,k_0c,
+                                                         nu_0t,nu_0c,
+                                                         sigma2_0t,sigma2_0c,
                                                          TV, MAV, gamma_1, gamma_2,
                                                          N = input$N,
                                                          mu_t.length = 10) 
         res <- sapply(1:length(mu_t_seq), function(i) {
-          continuous_pred.GO.sce.W(mu_t_seq[i], mu_c.fix, sigma2,
-                                   nu_t,nu_c,k_t,k_c,n_t,n_c,
-                                   m_t,m_c,
-                                   alpha, beta, 
+          continuous_pred.GO.sce.W(mu_t_seq[i], mu_c.fix, sigma2_t,sigma2_c,
+                                   n_t,n_c, m_t,m_c,
+                                   mu_0t,mu_0c,
+                                   k_0t,k_0c,
+                                   nu_0t,nu_0c,
+                                   sigma2_0t,sigma2_0c,
                                    TV, MAV, gamma_1, gamma_2,
                                    N = input$N)
         })
+        #----OC2----
+        y_t <- seq(y_t_h_lower,y_t_h_upper,length.out = 10)
+        
+        x <- uniroot(function(y) {
+          continuous_pred.W(n_t,n_c, m_t,m_c,
+                            y,y_c_h,s_t_h,s_c_h,
+                            mu_0t,mu_0c,
+                            k_0t,k_0c,
+                            nu_0t,nu_0c,
+                            sigma2_0t,sigma2_0c,
+                            theta = theta_null, N = 10000) - gamma_1
+        } , c(y_t_h_lower, y_t_h_upper), tol = 0.0001)$root
+        x_01 <- x-y_c_h
+        
+        x <- uniroot(function(y) {
+          continuous_pred.W(n_t,n_c, m_t,m_c,
+                            y,y_c_h,s_t_h,s_c_h,
+                            mu_0t,mu_0c,
+                            k_0t,k_0c,
+                            nu_0t,nu_0c,
+                            sigma2_0t,sigma2_0c,
+                            theta = theta_null, N = 10000) - gamma_2
+        } , c(y_t_h_lower, y_t_h_upper), tol = 0.0001)$root
+        x_02 <- x-y_c_h
+        
+        y_t <- c(y_t,x_01+y_c_h,x_02+y_c_h)
+        obs_diff <- y_t - y_c_h
+        pred.prob <- sapply(y_t, function(y) {
+          continuous_pred.W(n_t,n_c, m_t,m_c,
+                            y,y_c_h,s_t_h,s_c_h,
+                            mu_0t,mu_0c,
+                            k_0t,k_0c,
+                            nu_0t,nu_0c,
+                            sigma2_0t,sigma2_0c,
+                            theta = theta_null, N = 10000)
+        })
+        pred.prob <- cbind(y_t,pred.prob,obs_diff)
+        
+        lDataValues$plot_OC2_pred <- graph_OC2(pred.prob,"continuous",TRUE,gamma_1,gamma_2,x_01,x_02)
         
       } else if (input$prior == 'Vague Prior') {
-        lDataValues$plot_OC_pred <- continuous_pred.OC.W.vague(lower,upper,mu_c.fix,sigma2,
+        lDataValues$plot_OC_pred <- continuous_pred.OC.W.vague(lower,upper,mu_c.fix,sigma2_t,sigma2_c,
                                                                n_t,n_c,
                                                                m_t,m_c,
                                                                TV, MAV, gamma_1, gamma_2,
                                                                N = input$N,
                                                                mu_t.length = 10) 
         res <- sapply(1:length(mu_t_seq), function(i) {
-          continuous_pred.GO.sce.W.vague(mu_t_seq[i], mu_c.fix, sigma2,
+          continuous_pred.GO.sce.W.vague(mu_t_seq[i], mu_c.fix, sigma2_t,sigma2_c,
                                          n_t,n_c,
                                          m_t,m_c,
                                          TV, MAV, gamma_1, gamma_2,
                                          N = input$N)
         })
+        
+        #----OC2----
+        y_t <- seq(y_t_h_lower,y_t_h_upper,length.out = 10)
+        
+        x <- uniroot(function(y) {
+          continuous_pred.W.vague(n_t,n_c,
+                                  y,y_c_h,
+                                  s_t_h, s_c_h,
+                                  m_t,m_c,
+                                  theta = theta_null, N = 10000) - gamma_1
+        } , c(y_t_h_lower, y_t_h_upper), tol = 0.0001)$root
+        x_01 <- x-y_c_h
+        
+        x <- uniroot(function(y) {
+          continuous_pred.W.vague(n_t,n_c,
+                                  y,y_c_h,
+                                  s_t_h, s_c_h,
+                                  m_t,m_c,
+                                  theta = theta_null, N = 10000) - gamma_2
+        } , c(y_t_h_lower, y_t_h_upper), tol = 0.0001)$root
+        x_02 <- x-y_c_h
+        
+        y_t <- c(y_t,x_01+y_c_h,x_02+y_c_h)
+        obs_diff <- y_t - y_c_h
+        pred.prob <- sapply(y_t, function(y) {
+          continuous_pred.W.vague(n_t,n_c,
+                                  y,y_c_h,
+                                  s_t_h, s_c_h,
+                                  m_t,m_c,
+                                  theta = theta_null, N = 10000)
+        })
+        pred.prob <- cbind(y_t,pred.prob,obs_diff)
+        
+        lDataValues$plot_OC2_pred <- graph_OC2(pred.prob,"continuous",TRUE,gamma_1,gamma_2,x_01,x_02)
+        
       }
       res <- as.data.frame(apply(res,1,unlist))
       res$mu_t <- mu_t_seq
@@ -270,6 +354,9 @@ ContinuousWithServer <- function(id = "ContinuousWith") {
     })
     output$OC_pred <- renderPlot({
       lDataValues$plot_OC_pred
+    })
+    output$OC2_pred <- renderPlot({
+      lDataValues$plot_OC2_pred 
     })
     output$OC_pred_table <- renderTable({
       lDataValues$table_OC_pred

@@ -1,11 +1,11 @@
-ContinuousWithUI <- function(id = "ContinuousWith") {
+ContinuousExtUI <- function(id = "ContinuousExt") {
   ns <- NS(id)
   fldRow <- fluidRow(
     box(width = 12,
         title = "Continuous Endpoint: With Controlled PoC Study",
         wellPanel(
-          withMathJax(includeMarkdown("documents/ContinuousWith.Rmd"))
-          ),
+          withMathJax(includeMarkdown("documents/ContinuousExternal.Rmd"))
+        ),
         wellPanel(
           fluidRow(column(12,
                           HTML("<b>Confidence Levels of Making Go/NoGo Decision:</b>"))),
@@ -37,31 +37,53 @@ ContinuousWithUI <- function(id = "ContinuousWith") {
                    column(3,numericInput(ns("lower"), label = withMathJax("Lower bound of \\( \\mu_t\\)"),value = -1)),
                    column(3,numericInput(ns("upper"), label = withMathJax("Upper bound of \\(\\mu_t \\)"),value = 3)))
         ),
-        selectInput(ns("prior"), "Prior Selection",
-                    c("N-Inv-\u03C7\u00B2" = "Normal-Inverse-Chi-Squared Prior", 
-                      "Vague" = "Vague Prior")
-        ),
-        conditionalPanel(
-          condition = "input.prior == 'Normal-Inverse-Chi-Squared Prior'",
-          #Some Common Parameters
-          wellPanel(
-            fluidRow(column(12,
-                            HTML("<b>Parameters for the Prior Distributions: </b>"))),
-            fluidRow(
-              column(3, numericInput(ns("mu_0t"), label = withMathJax("\\(\\mu_{0t}\\)"), value = 5)),
-              column(3, numericInput(ns("k_0t"), label = withMathJax("\\(k_{0t}\\)"), value = 5)),
-              column(3, numericInput(ns("nu_0t"), label = withMathJax("\\(\\nu_{0t}\\)"), value = 5)),
-              column(3, numericInput(ns("sigma2_0t"), label = withMathJax("\\(\\sigma^2_{0t}\\)"), value = 5)),
-            ),
-            fluidRow(
-              column(3, numericInput(ns("mu_0c"), label = withMathJax("\\(\\mu_{0c}\\)"), value = 5)),
-              column(3, numericInput(ns("k_0c"), label = withMathJax("\\(k_{0c}\\)"), value = 5)),
-              column(3, numericInput(ns("nu_0c"), label = withMathJax("\\(\\nu_{0c}\\)"), value = 5)),
-              column(3, numericInput(ns("sigma2_0c"), label = withMathJax("\\(\\sigma^2_{0c}\\)"), value = 5)),
-            ),
+        wellPanel(
+          fluidRow(column(12, HTML("<b>Power Prior Parameters:</b>"))),
+          fluidRow(
+            column(3,numericInput(ns("a_0t"), label = withMathJax("\\(a_{0t}\\)"), value = 0.5)),
+            column(3,numericInput(ns("a_0c"), label = withMathJax("\\(a_{0c}\\)"), value = 0.5))
           ),
-          ns=NS(id)
+          fluidRow(column(12, HTML("<b>External Data Sample Sizes:</b>"))),
+          fluidRow(
+            column(3,numericInput(ns("n_et"), label = withMathJax("\\(n_{et}\\)"), value = 12)),
+            column(3,numericInput(ns("n_ec"), label = withMathJax("\\(n_{ec}\\)"), value = 12))
+          ),
+          fluidRow(column(12, HTML("<b>External Data Sample Mean:</b>"))),
+          fluidRow(
+            column(3,numericInput(ns("y_et_bar"), label = withMathJax("\\(\\bar y_{et}\\)"), value = 6)),
+            column(3,numericInput(ns("y_ec_bar"), label = withMathJax("\\(\\bar y_{ec}\\)"), value = 6))
+          ),
+          fluidRow(column(12, HTML("<b>External Data Sample Standard Deviation:</b>"))),
+          fluidRow(
+            column(3,numericInput(ns("s_et"), label = withMathJax("\\(s_{et}\\)"), value = 6)),
+            column(3,numericInput(ns("s_ec"), label = withMathJax("\\(s_{ec}\\)"), value = 6))
+          )
         ),
+        # selectInput(ns("prior"), "Prior Selection",
+        #             c("N-Inv-\u03C7\u00B2" = "Normal-Inverse-Chi-Squared Prior", 
+        #               "Vague" = "Vague Prior")
+        # ),
+        # conditionalPanel(
+        #   condition = "input.prior == 'Normal-Inverse-Chi-Squared Prior'",
+        #   #Some Common Parameters
+        #   wellPanel(
+        #     fluidRow(column(12,
+        #                     HTML("<b>Parameters for the Prior Distributions: </b>"))),
+        #     fluidRow(
+        #       column(3, numericInput(ns("mu_0t"), label = withMathJax("\\(\\mu_{0t}\\)"), value = 5)),
+        #       column(3, numericInput(ns("k_0t"), label = withMathJax("\\(k_{0t}\\)"), value = 5)),
+        #       column(3, numericInput(ns("nu_0t"), label = withMathJax("\\(\\nu_{0t}\\)"), value = 5)),
+        #       column(3, numericInput(ns("sigma2_0t"), label = withMathJax("\\(\\sigma^2_{0t}\\)"), value = 5)),
+        #     ),
+        #     fluidRow(
+        #       column(3, numericInput(ns("mu_0c"), label = withMathJax("\\(\\mu_{0c}\\)"), value = 5)),
+        #       column(3, numericInput(ns("k_0c"), label = withMathJax("\\(k_{0c}\\)"), value = 5)),
+        #       column(3, numericInput(ns("nu_0c"), label = withMathJax("\\(\\nu_{0c}\\)"), value = 5)),
+        #       column(3, numericInput(ns("sigma2_0c"), label = withMathJax("\\(\\sigma^2_{0c}\\)"), value = 5)),
+        #     ),
+        #   ),
+        #   ns=NS(id)
+        # ),
         tabsetPanel(
           tabPanel("Posterior Probability as Decision Criteria",
                    box(width = 12,
@@ -169,8 +191,8 @@ ContinuousWithUI <- function(id = "ContinuousWith") {
                    ))
           
         )
-        )
- 
+    )
+    
   )#end fluidRow
   return(fldRow)
 }

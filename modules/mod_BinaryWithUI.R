@@ -56,10 +56,7 @@ BinaryWithUI <- function(id = "BinaryWith") {
                          fluidRow(column(12,
                                          plotOutput(ns("OC_pos")))),
                          fluidRow(column(12,
-                                         tagList(
-                                           withMathJax(),
-                                           withMathJax(tableOutput(ns("OC_pos_table")))
-                                         )))
+                                         tableOutput(ns("OC_pos_table"))))
                        )),
                    box(width = 12,
                        title = "Posterior Probability Calculation",
@@ -98,8 +95,6 @@ BinaryWithUI <- function(id = "BinaryWith") {
                          fluidRow(column(12,
                                          HTML("<b>Hypothetical Observed PoC Data: </b>"))),
                          fluidRow(
-                           # column(3,
-                           #               numericInput(ns("y_t_h"), label = withMathJax("\\(y_t\\)"), value = 12)),
                                   column(3,
                                          numericInput(ns("y_c_h"), label = withMathJax("\\(y_c\\)"), value = 0)),
                          ),
@@ -118,10 +113,7 @@ BinaryWithUI <- function(id = "BinaryWith") {
                          fluidRow(column(12,
                                          plotOutput(ns("OC_pred")))),
                          fluidRow(column(12,
-                                         tagList(
-                                           withMathJax(),
-                                           withMathJax(tableOutput(ns("OC_pred_table")))
-                                         ))),
+                                         tableOutput(ns("OC_pred_table")))),
                          fluidRow(column(12,
                                          plotOutput(ns("OC2_pred")))),
                        )),
