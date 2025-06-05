@@ -6,6 +6,7 @@ library(shinybusy)
 library(shinyWidgets)
 library(shinyBS)
 library(rstan)
+library(markdown)
 
 source("functions/binary_Posterior.R")
 source("functions/binary_Predictive.R")
